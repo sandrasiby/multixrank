@@ -38,6 +38,7 @@ class Bipartite:
         self.self_loops = self_loops
 
         self._networkx = None
+        self.edge_list = None
 
     @property
     def networkx(self) -> networkx.Graph:
@@ -45,15 +46,15 @@ class Bipartite:
 
         if self._networkx is None:
 
-            names = ['col1', 'col2']  # layer file column labels
+            names = ['col1', 'col2', 'src_layer', 'dst_layer']  # layer file column labels
             dtype = str
             edge_attr = ['network_key']
             usecols = [0, 1]  # two cols like in unweighted
             if self.graph_type[1] == '1':  # weighted layer
-                names = ['col1', 'col2', 'weight']
-                dtype = {'col1': str, 'col2': str, 'weight': numpy.float64}
-                edge_attr = ['network_key', 'weight']
-                usecols = [0, 1, 2]  # two cols like in unweighted
+                names = ['col1', 'col2', 'src_layer', 'dst_layer', 'weight']
+                dtype = {'col1': str, 'col2': str, 'src_layer': str, 'dst_layer': str, 'weight': numpy.float64}
+                edge_attr = ['network_key', 'src_layer', 'dst_layer', 'weight']
+                usecols = [0, 1, 2, 3, 4]  # two cols like in unweighted
 
             networkx_graph_obj = networkx.Graph()  # layer file column labels
             if self.graph_type[0] == '1':  # directed layer
@@ -71,6 +72,7 @@ class Bipartite:
                 edge_attr=edge_attr, create_using=networkx_graph_obj)
 
             self._networkx.remove_edges_from(networkx.selfloop_edges(self._networkx))
+            self.edge_list = multiplex_layer_edge_list_df
 
             # networkx has no edges
             # TODO replace edges with nodes
